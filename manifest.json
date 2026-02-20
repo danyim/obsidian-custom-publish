@@ -1,8 +1,8 @@
 {
 	"id": "obsidian-custom-publish",
 	"name": "Custom Publish",
-	"version": "0.1.0",
-	"minAppVersion": "0.15.0",
+	"version": "1.0.0",
+	"minAppVersion": "1.12.2",
 	"description": "Command palette actions to manage frontmatter publish and visibility properties, with a copy-URL command for published pages.",
 	"author": "danyim",
 	"authorUrl": "https://github.com/danyim",

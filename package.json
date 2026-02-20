@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-custom-publish",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "Custom Obsidian publish plugin",
 	"main": "main.js",
 	"type": "module",

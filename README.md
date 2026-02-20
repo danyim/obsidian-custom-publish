@@ -1,6 +1,6 @@
-# Custom Publish
+# Obsidian Custom Publish
 
-An Obsidian plugin that exposes command palette actions to set frontmatter properties for publishing workflows. It doesn't tie itself to a specific hosting provider — it assumes you already have a system that scans notes and publishes based on frontmatter properties.
+This is an Obsidian plugin that exposes command palette actions to set frontmatter properties for custom publishing workflows. It doesn't tie itself to a specific hosting provider (Obsidian Publish or otherwise); it assumes you already have a system that scans notes and publishes based on frontmatter properties.
 
 ## Commands
 
