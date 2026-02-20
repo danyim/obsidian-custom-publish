@@ -26,9 +26,9 @@ export class CustomPublishSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Publish property')
-			.setDesc('The frontmatter property key used to mark a page as published.')
+			.setDesc('The frontmatter property key used to mark a page as published')
 			.addText(text => text
-				.setPlaceholder('publish')
+				.setPlaceholder('Publish')
 				.setValue(this.plugin.settings.publishProperty)
 				.onChange(async (value) => {
 					this.plugin.settings.publishProperty = value;
@@ -37,9 +37,9 @@ export class CustomPublishSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Visibility property')
-			.setDesc('The frontmatter property key used to control page visibility (e.g. private/public).')
+			.setDesc('The frontmatter property key used to control page visibility (e.g. private/public)')
 			.addText(text => text
-				.setPlaceholder('private')
+				.setPlaceholder('Private')
 				.setValue(this.plugin.settings.visibilityProperty)
 				.onChange(async (value) => {
 					this.plugin.settings.visibilityProperty = value;

@@ -13,7 +13,7 @@ export default class CustomPublishPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
 				if (!file) return false;
-				if (!checking) this.setProperty(this.settings.publishProperty, true);
+				if (!checking) void this.setProperty(this.settings.publishProperty, true);
 				return true;
 			}
 		});
@@ -24,7 +24,7 @@ export default class CustomPublishPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
 				if (!file) return false;
-				if (!checking) this.setProperty(this.settings.publishProperty, false);
+				if (!checking) void this.setProperty(this.settings.publishProperty, false);
 				return true;
 			}
 		});
@@ -35,7 +35,7 @@ export default class CustomPublishPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
 				if (!file) return false;
-				if (!checking) this.toggleProperty(this.settings.publishProperty);
+				if (!checking) void this.toggleProperty(this.settings.publishProperty);
 				return true;
 			}
 		});
@@ -46,7 +46,7 @@ export default class CustomPublishPlugin extends Plugin {
 			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
 				if (!file) return false;
-				if (!checking) this.toggleProperty(this.settings.visibilityProperty);
+				if (!checking) void this.toggleProperty(this.settings.visibilityProperty);
 				return true;
 			}
 		});
@@ -69,23 +69,23 @@ export default class CustomPublishPlugin extends Plugin {
 		const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
 		if (!file) return;
 
-		await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+		await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
 			frontmatter[key] = value;
 		});
 
-		new Notice(`${key}: ${value}`);
+		new Notice(`${key}: ${String(value)}`);
 	}
 
 	private async toggleProperty(key: string) {
 		const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
 		if (!file) return;
 
-		let newValue: boolean;
-		await this.app.fileManager.processFrontMatter(file, (frontmatter) => {
+		let newValue = false;
+		await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
 			newValue = !frontmatter[key];
 			frontmatter[key] = newValue;
 		});
 
-		new Notice(`${key}: ${newValue!}`);
+		new Notice(`${key}: ${String(newValue)}`);
 	}
 }
