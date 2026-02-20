@@ -85,7 +85,7 @@ export default class CustomPublishPlugin extends Plugin {
 			frontmatter[key] = value;
 		});
 
-		new Notice(`${file.basename} — ${key} ${value ? 'enabled' : 'disabled'}`);
+		new Notice(`${file.basename}: ${key} ${value ? 'enabled' : 'disabled'}`);
 	}
 
 	private async copyPublishedUrl() {
@@ -95,7 +95,7 @@ export default class CustomPublishPlugin extends Plugin {
 		const slug = this.toSlug(file.basename, this.settings.slugStyle);
 		const url = this.settings.publishUrl.replace('${PAGE}', slug);
 		await navigator.clipboard.writeText(url);
-		new Notice(`URL copied — ${url}`);
+		new Notice(`URL copied: ${url}`);
 	}
 
 	private toSlug(name: string, style: SlugStyle): string {
@@ -132,6 +132,6 @@ export default class CustomPublishPlugin extends Plugin {
 			frontmatter[key] = newValue;
 		});
 
-		new Notice(`${file.basename} — ${key} ${newValue ? 'enabled' : 'disabled'}`);
+		new Notice(`${file.basename}: ${key} ${newValue ? 'enabled' : 'disabled'}`);
 	}
 }
