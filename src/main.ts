@@ -1,5 +1,6 @@
 import {MarkdownView, Notice, Plugin} from 'obsidian';
 import {DEFAULT_SETTINGS, CustomPublishSettings, CustomPublishSettingTab} from "./settings";
+import type {SlugStyle} from "./settings";
 
 export default class CustomPublishPlugin extends Plugin {
 	settings: CustomPublishSettings;
@@ -51,6 +52,17 @@ export default class CustomPublishPlugin extends Plugin {
 			}
 		});
 
+		this.addCommand({
+			id: 'copy-published-page-url',
+			name: 'Copy published page URL',
+			checkCallback: (checking: boolean) => {
+				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
+				if (!file || !this.settings.publishUrl) return false;
+				if (!checking) void this.copyPublishedUrl();
+				return true;
+			}
+		});
+
 		this.addSettingTab(new CustomPublishSettingTab(this.app, this));
 	}
 
@@ -73,7 +85,41 @@ export default class CustomPublishPlugin extends Plugin {
 			frontmatter[key] = value;
 		});
 
-		new Notice(`${key}: ${String(value)}`);
+		new Notice(`${file.basename} — ${key} ${value ? 'enabled' : 'disabled'}`);
+	}
+
+	private async copyPublishedUrl() {
+		const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
+		if (!file) return;
+
+		const slug = this.toSlug(file.basename, this.settings.slugStyle);
+		const url = this.settings.publishUrl.replace('${PAGE}', slug);
+		await navigator.clipboard.writeText(url);
+		new Notice(`URL copied — ${url}`);
+	}
+
+	private toSlug(name: string, style: SlugStyle): string {
+		// Split into words: handle spaces, underscores, hyphens, and strip special chars
+		const words = name
+			.replace(/[^\w\s-]/g, '')
+			.trim()
+			.split(/[\s_-]+/)
+			.filter(w => w.length > 0);
+
+		switch (style) {
+			case 'kebab':
+				return words.map(w => w.toLowerCase()).join('-');
+			case 'title-kebab':
+				return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('-');
+			case 'title-case':
+				return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
+			case 'camel-case':
+				return words.map((w, i) =>
+					i === 0
+						? w.toLowerCase()
+						: w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+				).join('');
+		}
 	}
 
 	private async toggleProperty(key: string) {
@@ -86,6 +132,6 @@ export default class CustomPublishPlugin extends Plugin {
 			frontmatter[key] = newValue;
 		});
 
-		new Notice(`${key}: ${String(newValue)}`);
+		new Notice(`${file.basename} — ${key} ${newValue ? 'enabled' : 'disabled'}`);
 	}
 }
