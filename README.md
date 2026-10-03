@@ -25,7 +25,7 @@ If the target property doesn't exist on the note, it will be added automatically
 
 ### Publish URL template
 
-The `${PAGE}` placeholder is replaced with the current note's filename, converted using the selected slug style. Special characters are stripped and words are split on spaces, underscores, and hyphens.
+Each `${PAGE}` placeholder is replaced with the current note's filename, converted using the selected slug style. Special characters are stripped and words are split on spaces, underscores, and hyphens.
 
 **Slug styles:**
 
@@ -46,14 +46,24 @@ The `${PAGE}` placeholder is replaced with the current note's filename, converte
 
 > **Note:** The "Copy published page URL" command is only available when a Publish URL template is configured.
 
+## Installation
+
+Install **Custom Publish** from **Settings → Community plugins → Browse**.
+
+To install by hand, download `custom-publish-<version>.zip` from the
+[latest release](https://github.com/danyim/obsidian-custom-publish/releases/latest)
+and extract it into your vault's `.obsidian/plugins/` folder, so the files end
+up in `.obsidian/plugins/custom-publish/`. Then enable the plugin under
+**Settings → Community plugins**.
+
 ## Development
 
 ```bash
 npm install
 npm run dev    # watch mode
 npm run build  # production build
+npm test       # unit tests and e2e tests in real Obsidian
 ```
 
-## Installation
-
-Copy `main.js`, `styles.css`, and `manifest.json` to your vault at `.obsidian/plugins/obsidian-custom-publish/`.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+and [docs/TESTING.md](docs/TESTING.md).
