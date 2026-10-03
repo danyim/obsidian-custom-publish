@@ -1,137 +1,97 @@
-import {MarkdownView, Notice, Plugin} from 'obsidian';
-import {DEFAULT_SETTINGS, CustomPublishSettings, CustomPublishSettingTab} from "./settings";
-import type {SlugStyle} from "./settings";
+import { MarkdownView, Notice, Plugin, TFile } from 'obsidian';
+
+import { CustomPublishSettings, mergeSettings } from './settings';
+import { CustomPublishSettingTab } from './settingsTab';
+import { publishedUrl } from './slug';
 
 export default class CustomPublishPlugin extends Plugin {
-	settings: CustomPublishSettings;
+  settings: CustomPublishSettings;
 
-	async onload() {
-		await this.loadSettings();
+  async onload() {
+    await this.loadSettings();
 
-		this.addCommand({
-			id: 'publish-page',
-			name: 'Publish page',
-			checkCallback: (checking: boolean) => {
-				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-				if (!file) return false;
-				if (!checking) void this.setProperty(this.settings.publishProperty, true);
-				return true;
-			}
-		});
+    this.addFileCommand('publish-page', 'Publish page', (file) =>
+      this.setProperty(file, this.settings.publishProperty, true)
+    );
+    this.addFileCommand('unpublish-page', 'Unpublish page', (file) =>
+      this.setProperty(file, this.settings.publishProperty, false)
+    );
+    this.addFileCommand('toggle-publish-page', 'Toggle publish page', (file) =>
+      this.toggleProperty(file, this.settings.publishProperty)
+    );
+    this.addFileCommand('toggle-visibility', 'Toggle visibility', (file) =>
+      this.toggleProperty(file, this.settings.visibilityProperty)
+    );
+    this.addFileCommand(
+      'copy-published-page-url',
+      'Copy published page URL',
+      (file) => this.copyPublishedUrl(file),
+      () => this.settings.publishUrl !== ''
+    );
 
-		this.addCommand({
-			id: 'unpublish-page',
-			name: 'Unpublish page',
-			checkCallback: (checking: boolean) => {
-				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-				if (!file) return false;
-				if (!checking) void this.setProperty(this.settings.publishProperty, false);
-				return true;
-			}
-		});
+    this.addSettingTab(new CustomPublishSettingTab(this.app, this));
+  }
 
-		this.addCommand({
-			id: 'toggle-publish-page',
-			name: 'Toggle publish page',
-			checkCallback: (checking: boolean) => {
-				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-				if (!file) return false;
-				if (!checking) void this.toggleProperty(this.settings.publishProperty);
-				return true;
-			}
-		});
+  async loadSettings() {
+    this.settings = mergeSettings(await this.loadData());
+  }
 
-		this.addCommand({
-			id: 'toggle-visibility',
-			name: 'Toggle visibility',
-			checkCallback: (checking: boolean) => {
-				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-				if (!file) return false;
-				if (!checking) void this.toggleProperty(this.settings.visibilityProperty);
-				return true;
-			}
-		});
+  async saveSettings() {
+    await this.saveData(this.settings);
+  }
 
-		this.addCommand({
-			id: 'copy-published-page-url',
-			name: 'Copy published page URL',
-			checkCallback: (checking: boolean) => {
-				const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-				if (!file || !this.settings.publishUrl) return false;
-				if (!checking) void this.copyPublishedUrl();
-				return true;
-			}
-		});
+  /**
+   * Registers a command that acts on the note in the active markdown view,
+   * and is hidden from the palette when there isn't one or `available` says
+   * no.
+   */
+  private addFileCommand(
+    id: string,
+    name: string,
+    run: (file: TFile) => Promise<void>,
+    available: () => boolean = () => true
+  ) {
+    this.addCommand({
+      id,
+      name,
+      checkCallback: (checking) => {
+        const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
+        if (!file || !available()) return false;
+        if (!checking) void run(file);
+        return true;
+      },
+    });
+  }
 
-		this.addSettingTab(new CustomPublishSettingTab(this.app, this));
-	}
+  private async setProperty(file: TFile, key: string, value: boolean) {
+    await this.app.fileManager.processFrontMatter(
+      file,
+      (frontmatter: Record<string, unknown>) => {
+        frontmatter[key] = value;
+      }
+    );
+    new Notice(`${file.basename}: ${key} ${value ? 'enabled' : 'disabled'}`);
+  }
 
-	onunload() {
-	}
+  private async toggleProperty(file: TFile, key: string) {
+    let value = false;
+    await this.app.fileManager.processFrontMatter(
+      file,
+      (frontmatter: Record<string, unknown>) => {
+        value = !frontmatter[key];
+        frontmatter[key] = value;
+      }
+    );
+    new Notice(`${file.basename}: ${key} ${value ? 'enabled' : 'disabled'}`);
+  }
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<CustomPublishSettings>);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-
-	private async setProperty(key: string, value: boolean) {
-		const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-		if (!file) return;
-
-		await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
-			frontmatter[key] = value;
-		});
-
-		new Notice(`${file.basename}: ${key} ${value ? 'enabled' : 'disabled'}`);
-	}
-
-	private async copyPublishedUrl() {
-		const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-		if (!file) return;
-
-		const slug = this.toSlug(file.basename, this.settings.slugStyle);
-		const url = this.settings.publishUrl.replace('${PAGE}', slug);
-		await navigator.clipboard.writeText(url);
-		new Notice(`URL copied: ${url}`);
-	}
-
-	private toSlug(name: string, style: SlugStyle): string {
-		// Split into words: handle spaces, underscores, hyphens, and strip special chars
-		const words = name
-			.replace(/[^\w\s-]/g, '')
-			.trim()
-			.split(/[\s_-]+/)
-			.filter(w => w.length > 0);
-
-		switch (style) {
-			case 'kebab':
-				return words.map(w => w.toLowerCase()).join('-');
-			case 'title-kebab':
-				return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('-');
-			case 'title-case':
-				return words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('');
-			case 'camel-case':
-				return words.map((w, i) =>
-					i === 0
-						? w.toLowerCase()
-						: w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-				).join('');
-		}
-	}
-
-	private async toggleProperty(key: string) {
-		const file = this.app.workspace.getActiveViewOfType(MarkdownView)?.file;
-		if (!file) return;
-
-		let newValue = false;
-		await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
-			newValue = !frontmatter[key];
-			frontmatter[key] = newValue;
-		});
-
-		new Notice(`${file.basename}: ${key} ${newValue ? 'enabled' : 'disabled'}`);
-	}
+  private async copyPublishedUrl(file: TFile) {
+    const url = publishedUrl(
+      this.settings.publishUrl,
+      file.basename,
+      this.settings.slugStyle
+    );
+    await navigator.clipboard.writeText(url);
+    new Notice(`URL copied: ${url}`);
+  }
 }
