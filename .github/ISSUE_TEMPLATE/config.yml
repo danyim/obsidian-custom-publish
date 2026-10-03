@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/danyim/obsidian-custom-publish#readme
+    about: The commands, the settings, and how the URL template and slug styles work are covered in the README.

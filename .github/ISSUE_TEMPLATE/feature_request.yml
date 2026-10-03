@@ -1,0 +1,52 @@
+name: Feature request
+description: Suggest something Custom Publish should be able to do
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Custom Publish aims to stay a small plugin that works with whatever
+        publishing setup you already have: it sets frontmatter properties and
+        builds a page's URL, and leaves the publishing to your own system.
+        Suggestions that fit that shape are the easiest to land.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before requesting
+      options:
+        - label: I searched the existing issues and didn't find this one.
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: |
+        Describe the problem rather than the solution first. It often turns out
+        there's already a way to do it, or a simpler one nobody had thought of.
+      placeholder: My site generator expects slugs in snake_case, so I …
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like to happen?
+      description: The change as you picture it, such as a setting, a command, or a different slug style.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+      description: |
+        Including workarounds you're using today, or other plugins that do part of this.
+
+  - type: checkboxes
+    id: contributing
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd be willing to open a pull request for this.
