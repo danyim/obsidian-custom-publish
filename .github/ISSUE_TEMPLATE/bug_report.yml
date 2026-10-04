@@ -1,0 +1,109 @@
+name: Bug report
+description: Something in Custom Publish doesn't work the way it should
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a report.
+
+        Custom Publish only writes frontmatter properties and builds a URL. It
+        doesn't publish anything itself, so if a page didn't go live, check
+        whether the property was written before reporting it here.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before reporting
+      options:
+        - label: I searched the existing issues and didn't find this one.
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you see? What did you expect to see instead?
+      placeholder: Running "Toggle publish page" on a note with existing frontmatter removed its tags.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: |
+        The smallest sequence that reproduces it: the command you ran, and the
+        note's frontmatter and file name before and after.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Settings
+      description: |
+        Your publish property, visibility property, URL template and slug
+        style. Leave out anything private in the URL.
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Custom Publish version
+      description: Settings → Community plugins → Custom Publish
+      placeholder: 1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: obsidian-version
+    attributes:
+      label: Obsidian version
+      description: |
+        Help → Show debug info. Please include both the Obsidian and installer
+        versions if they differ.
+      placeholder: v1.13.7 (installer v1.13.7)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Desktop (Linux)
+        - Desktop (macOS)
+        - Desktop (Windows)
+        - Mobile (iOS / iPadOS)
+        - Mobile (Android)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: isolated
+    attributes:
+      label: Isolation
+      description: |
+        Optional, but it saves a round trip. Other plugins that rewrite
+        frontmatter (Linter, for example) can change it after this one does.
+      options:
+        - label: Still happens with other community plugins disabled.
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console output
+      description: |
+        Any errors from the developer console (Ctrl/Cmd + Shift + I → Console).
+        This is automatically formatted as code, so no backticks needed.
+      render: text
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Anything else
+      description: Screenshots, the note's frontmatter, whatever seems relevant.
